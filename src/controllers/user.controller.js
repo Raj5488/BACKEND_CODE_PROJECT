@@ -13,23 +13,25 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 // Importing the ApiResponse class for creating consistent API response structures
 import { ApiResponse } from '../utils/ApiResponse.js';
 
-// Function to validate if an email is in a valid format using a regular expression
-const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
+
 
 // Asynchronous function to handle user registration
 const registerUser = asyncHandler(async (req, res) => {
     // Destructuring required fields from the request body
     const { fullName, email, username, password } = req.body;
-    console.log("email", email);
+    // console.log("email", email);
 
     // Check if any required field is empty
     if ([fullName, username, password, email].some((fields) => fields?.trim() === "")) {
         throw new ApiError(400, "All fields are required");
     }
 
+
+    // Function to validate if an email is in a valid format using a regular expression
+const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
     // Validate email format
     if (!isValidEmail(email)) {
         throw new ApiError(400, "Invalid email address");
@@ -44,9 +46,17 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(409, "User with email or username already exists");
     }
 
+    // console.log(req.files)
+
     // Retrieve paths of avatar and coverImage files from the request
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocal = req.files?.coverImage[0]?.path;
+    // const coverImageLocal = req.files?.coverImage[0]?.path;
+
+    let coverImageLocalPath;
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+    coverImageLocalPath = req.files.coverImage[0].path;
+    }
+
 
     // Check if avatar file is provided
     if (!avatarLocalPath) {
@@ -55,7 +65,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
     // Upload avatar and coverImage files to Cloudinary
     const avatar = await uploadOnCloudinary(avatarLocalPath);
-    const coverImage = await uploadOnCloudinary(coverImageLocal);
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
     // Check if avatar upload is successful
     if (!avatar) {

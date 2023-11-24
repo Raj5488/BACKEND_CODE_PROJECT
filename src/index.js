@@ -9,7 +9,7 @@ import app from './app.js';
 
 // Configuring dotenv to load environment variables from the specified file ('./env')
 dotenv.config({
-    path: './env'
+    path: './.env'
 });
 
 // Connecting to MongoDB using the 'connetDB' function

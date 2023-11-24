@@ -1,10 +1,6 @@
 // Importing the Cloudinary v2 library with alias 'cloudinary'
 import { v2 as cloudinary } from "cloudinary";
 
-// Importing the 'cluster' and 'exp' modules (note: these imports are not used in the code)
-import cluster from "cluster";
-import exp from "constants";
-
 // Importing the 'fs' module for working with the file system
 import fs from "fs";
 
@@ -27,7 +23,10 @@ const uploadOnCloudinary = async (localFilePath) => {
         });
 
         // Log a success message if the file is uploaded successfully
-        console.log("File is uploaded on Cloudinary: ", response.url);
+        // console.log("File is uploaded on Cloudinary: ", response.url);
+
+        fs.unlinkSync(localFilePath)
+        return response;
 
         // Return the Cloudinary response
         return response;
