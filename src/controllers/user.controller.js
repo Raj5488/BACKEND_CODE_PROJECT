@@ -14,6 +14,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from '../utils/ApiResponse.js';
 
 
+
 const generateAccessTokenAndfereshTokens = async(userId) =>{
         try {
             const user = await User.findById(userId)
@@ -121,9 +122,15 @@ const loginUser = asyncHandler(async(req,  res) =>{
         //  send cookies 
 
         const {email, username, password} = req.body
-        if (!(username || email)) {
-                throw new ApiError(400, "username or email is required")
+
+        if(!username && !email){
+            throw new ApiError(400,  "username or email is required")
         }
+        
+        // Here is an alternative of above code based on logic discussion
+        // if (!(username || email)) {
+        //         throw new ApiError(400, "username or email is required")
+        // }
         
         const user = await User.findOne({
             $or: [ {username}, {email} ]
@@ -134,7 +141,6 @@ const loginUser = asyncHandler(async(req,  res) =>{
         }
 
         const isPasswordValid = await user.isPasswordCorrect(password)
-
         if(!isPasswordValid){
             throw new ApiError(401, "Invalid user credentials");
         }
@@ -162,30 +168,31 @@ const loginUser = asyncHandler(async(req,  res) =>{
         )
 })
 
-const logoutUser = asyncHandler(async(req, res) =>{
-            await User.findByIdAndUpdate(
-                req.user._id,
-                {
-                    $set: {
-                        refreshToken: undefined
-                    }
-                },
-                {
-                    new: true
-                }
-            )
-
-            const options = {
-                httpOnly: true,
-                secure: true
+const logoutUser = asyncHandler(async (req, res) => {
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: {
+                refreshToken: undefined
             }
+        },
+        {
+            new: true
+        }
+    );
 
-            return res
-            .status(200)
-            .clearCookies("accessToken", options)
-            .clearCookies("refreshToken", options)
-            .json(new ApiResponse(200, {}, "User logged Out"))
-})
+    const options = {
+        httpOnly: true,
+        secure: true
+    };
+
+    return res
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(new ApiResponse(200, {}, "User logged Out"));
+});
+
 
 // Exporting the registerUser function to make it accessible from other modules
 export { 
