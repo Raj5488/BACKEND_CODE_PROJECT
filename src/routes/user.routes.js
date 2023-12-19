@@ -2,7 +2,7 @@
 import { Router } from 'express';
 
 // Importing the registerUser controller function for handling user registration
-import { loginUser, logoutUser, registerUser } from '../controllers/user.controller.js';
+import { loginUser, logoutUser, registerUser, refreshAccessToken } from '../controllers/user.controller.js';
 
 // Importing the upload middleware for handling file uploads
 import { upload } from '../middlewares/multer.middleware.js';
@@ -32,5 +32,9 @@ router.route("/login").post(loginUser)
 
 // seccured route
 router.route("/logout").post(verifyJWT,  logoutUser)
+
+router.route("/refresh-token").post(refreshAccessToken)
+
+
 // Exporting the configured router to be used in other parts of the application
 export default router;
