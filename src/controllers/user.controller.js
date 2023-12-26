@@ -14,6 +14,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from '../utils/ApiResponse.js';
 
 import jwt from 'jsonwebtoken'
+import mongoose from "mongoose";
 
 
 const generateAccessTokenAndfereshTokens = async(userId) =>{
@@ -422,7 +423,63 @@ try {
             .json(new ApiResponse(200, channel[0], "User channel fetched successfully "))
         })
 
+// Define the getWatchHistory function using asyncHandler middleware
+const getWatchHistory = asyncHandler(async (req, res) => {
+    // Use the aggregate method to perform MongoDB aggregation pipeline
+    const user = await User.aggregate([
+        {
+            // Stage 1: Match the user by _id
+            $match: {
+                _id: new mongoose.Types.ObjectId(req.user._id)
+            }
+        },
+        {
+            // Stage 2: Lookup the Video collection using watchHistory field
+            $lookup: {
+                from: 'Video',
+                localField: 'watchHistory',
+                foreignField: '_id',
+                as: 'watchHistory',
+                // Pipeline for the Video collection lookup
+                pipeline: [
+                    {
+                        // Sub-stage 1: Lookup users collection to get owner information
+                        $lookup: {
+                            from: 'users',
+                            localField: 'owner',
+                            foreignField: '_id',
+                            as: 'owner',
+                            // Pipeline for the users collection lookup
+                            pipeline: [
+                                {
+                                    // Project only necessary fields from the owner
+                                    $project: {
+                                        fullName: 1,
+                                        username: 1,
+                                        avatar: 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        // Sub-stage 2: AddFields to rename the owner array to a single object
+                        $addFields: {
+                            owner: {
+                                $first: '$owner'
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]);
 
+    // Send the response with the fetched watch history
+    return res.status(200).json(
+        new ApiResponse(200, user[0].watchHistory, 'Watch history fetched successfully')
+    );
+});
 
 // Exporting the registerUser function to make it accessible from other modules
 export { 
@@ -435,5 +492,6 @@ export {
     updateAccoundDetails,
     updateUserAvatar,
     updateUserCoverImage,
-    getUserChannetProfile
+    getUserChannetProfile,
+    getWatchHistory
 };
