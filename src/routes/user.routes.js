@@ -2,7 +2,7 @@
 import { Router } from 'express';
 
 // Importing the registerUser controller function for handling user registration
-import { loginUser, logoutUser, registerUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateUserAvatar, updateUserCoverImage, getUserChannetProfile, getWatchHistory } from '../controllers/user.controller.js';
+import { loginUser, logoutUser, registerUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateUserAvatar, updateUserCoverImage, getUserChannetProfile, getWatchHistory, updateAccoundDetails } from '../controllers/user.controller.js';
 
 // Importing the upload middleware for handling file uploads
 import { upload } from '../middlewares/multer.middleware.js';
@@ -40,7 +40,7 @@ router.route("/update-account").patch(verifyJWT, updateAccoundDetails)
 router.route("/avatar").patch(verifyJWT, upload.single(
     "avatar"
 ), updateUserAvatar)
-router.route("/cover-image").patch(verifyJWT, upload.single("/coverImage"), updateUserCoverImage)
+router.route("/cover-image").patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage)
 router.route("/c/:username").get(verifyJWT, getUserChannetProfile)
 router.route("/history").get(verifyJWT, getWatchHistory)
 

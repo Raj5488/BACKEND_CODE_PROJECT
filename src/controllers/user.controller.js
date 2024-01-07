@@ -174,8 +174,8 @@ const logoutUser = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken: undefined
+            $unset: {
+                refreshToken: 1    // this removes the field from document
             }
         },
         {
@@ -247,7 +247,7 @@ try {
     const changeCurrentPassword = asyncHandler(async(req, res) =>{
         const { oldPassword, newPassword, confPassword } = req.body
 
-        if(newPassword === confPassword){
+        if(newPassword !== confPassword){
             throw new ApiError(400, "new password confirm password does not matched")
         }
 
@@ -392,7 +392,7 @@ try {
                                     $size: "$subscribedTo"
                             },
                             isSubscribed: {
-                                $coud: {
+                                $cond: {
                                     if: {$in: [req.user?._id, ["$subscribers.subscriber"] ]},
                                     then: true,
                                     else: false
