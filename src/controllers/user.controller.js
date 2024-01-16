@@ -279,7 +279,7 @@ try {
         if(!fullName || !email){
             throw new ApiError(400, "All field are required")
         }
-        User.findByIdAndUpdate(
+        const updatedUser = await User.findByIdAndUpdate(
             req.user?._id, 
             {
                 $set: {
@@ -290,9 +290,13 @@ try {
             {new: true}
             ).select("-password")
 
+            if (!updatedUser) {
+                throw new ApiError(404, "User not found");
+            }
+
             return res
             .status(200)
-            .json(new ApiResponse(200, user, "Account details updated successfully"))
+            .json(new ApiResponse(200, updatedUser, "Account details updated successfully"))
 
 
     })
