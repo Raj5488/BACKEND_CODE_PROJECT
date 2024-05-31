@@ -1,51 +1,49 @@
-// Importing the Router from Express to create a modular router
-import { Router } from 'express';
+import { Router } from "express";
+import { 
+    changeCurrentPassword, 
+    getCurrentUser, 
+    getUserChannelProfile, 
+    getWatchHistory, 
+    loginUser, 
+    logoutUser, 
+    refreshAccessToken, 
+    registerUser, 
+    updateUserAvatar, 
+    updateUserCoverImage, 
+    updateUserDetails 
+    } from "../controllers/user.controller.js";
+import {upload} from '../middlewares/multer.middleware.js'
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 
-// Importing the registerUser controller function for handling user registration
-import { loginUser, logoutUser, registerUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateUserAvatar, updateUserCoverImage, getUserChannetProfile, getWatchHistory, updateAccoundDetails } from '../controllers/user.controller.js';
+const router = Router()
 
-// Importing the upload middleware for handling file uploads
-import { upload } from '../middlewares/multer.middleware.js';
-import { verifyJWT } from '../middlewares/auth.middleware.js';
-
-// Creating an instance of the Express Router
-const router = Router();
-
-// Defining a route for user registration with the POST method
 router.route("/register").post(
-    // Using the upload middleware to handle file uploads with specific fields and limits
     upload.fields([
         {
-            name: "avatar",      // Field name for the avatar file
-            maxCount: 1          // Allowing a maximum of 1 file for the avatar
-        }, 
+            name: "avatar",
+            maxCount: 1
+        },
         {
-            name: "coverImage",  // Field name for the cover image file
-            maxCount: 1          // Allowing a maximum of 1 file for the cover image
+            name: "coverImage",
+            maxCount: 1
         }
-    ]),
-    // Handling user registration using the registerUser controller function
+    ]) ,
     registerUser
 );
 
-router.route("/login").post(loginUser)
+router.route("/login").post(upload.none(), loginUser);
 
-// seccured route
-router.route("/logout").post(verifyJWT,  logoutUser)
+//secured routes
+router.route("/logout").post(verifyJWT, logoutUser);
+router.route("/refresh-token").post(refreshAccessToken);
+router.route("/change-password").post(upload.none(), verifyJWT, changeCurrentPassword);
+router.route("/current-user").get(verifyJWT, getCurrentUser);
 
-router.route("/refresh-token").post(refreshAccessToken)
-router.route("/change-password").post(verifyJWT, changeCurrentPassword)
-router.route("/current-user").get(verifyJWT, getCurrentUser)
-router.route("/update-account").patch(verifyJWT, updateAccoundDetails)
-router.route("/avatar").patch(verifyJWT, upload.single(
-    "avatar"
-), updateUserAvatar)
-router.route("/cover-image").patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage)
-router.route("/c/:username").get(verifyJWT, getUserChannetProfile)
-router.route("/history").get(verifyJWT, getWatchHistory)
+router.route("/update-user").patch(upload.none(), verifyJWT, updateUserDetails);
+router.route("/update-avatar").patch(verifyJWT, upload.single('avatar'), updateUserAvatar);
+router.route("/update-coverImg").patch(verifyJWT, upload.single('coverImage'), updateUserCoverImage);
 
+router.route("/c/:username").get(verifyJWT, getUserChannelProfile);
+router.route("/watch-history").get(verifyJWT, getWatchHistory);
 
-
-
-// Exporting the configured router to be used in other parts of the application
-export default router;
+export default router

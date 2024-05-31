@@ -30,9 +30,27 @@ app.use(cookieParser());
 
 // Importing user routes from './routes/user.routes.js'
 import userRouter from './routes/user.routes.js';
-
-// Declaring routes for the '/api/v1/users' path
 app.use("/api/v1/users", userRouter);
 
-// Exporting the configured Express application for use in other parts of the application
+
+import commentRouter from "./routes/comment.routes.js";
+import likeRouter from "./routes/like.routes.js";
+import subscriptionRouter from "./routes/subscription.routes.js";
+import tweetRouter from "./routes/tweet.routes.js";
+import videoRouter from "./routes/video.routes.js";
+import healthcheckRouter from "./routes/healthcare.routers.js";
+import playlistRouter from "./routes/playlist.routes.js";
+import dashboardRouter from "./routes/dashboard.routes.js";
+
+
+app.use("/api/v1/comment", commentRouter);
+app.use("/api/v1/likes", likeRouter);
+app.use("/api/v1/subscriptions", subscriptionRouter);
+app.use("/api/v1/tweet", tweetRouter);
+app.use("/api/v1/video", videoRouter);
+app.use("/api/v1/healthcheck", healthcheckRouter);
+app.use("/api/v1/playlist", playlistRouter);
+app.use("/api/v1/dashboard", dashboardRouter);
+
+
 export default app;
